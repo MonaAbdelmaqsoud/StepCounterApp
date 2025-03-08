@@ -3,7 +3,7 @@ import { Pedometer } from "expo-sensors";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { selectCurrentActivity } from "../store/selectors";
+import { selectActivities, selectCurrentActivity } from "../store/selectors";
 import { addActivity, updateTodayTotals } from "../store/slice";
 import { calculateMetrics } from "../helpers/metricsHelpers";
 import {
@@ -15,9 +15,7 @@ import { saveActivityToStorage } from "../helpers/storage";
 const usePedometer = () => {
   const dispatch = useDispatch();
   const currentActivity = useSelector(selectCurrentActivity);
-  const activities = useSelector(
-    (state: RootState) => state.fitness.activities
-  );
+  const activities = useSelector(selectActivities);
 
   const [currentStepCount, setCurrentStepCount] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
@@ -68,6 +66,7 @@ const usePedometer = () => {
   }, [currentStepCount, currentActivity]);
 
   const startTracking = async () => {
+    if (isTracking) return;
     if (isPedometerAvailable === false) {
       console.warn("Pedometer is not available on this device.");
       return;
@@ -92,7 +91,7 @@ const usePedometer = () => {
   };
 
   const stopTracking = async () => {
-    if (elapsedTime === 0) return;
+    if (!isTracking) return;
     setIsTracking(false);
 
     if (intervalRef.current) clearInterval(intervalRef.current);

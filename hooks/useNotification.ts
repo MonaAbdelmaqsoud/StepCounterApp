@@ -13,7 +13,7 @@ const useNotification = (currentSteps: number) => {
     requestPermissions();
     initializeNotificationState();
     scheduleDailyReminder();
-    setupMidnightResetCheck();
+    setupHourlyResetCheck();
   }, []);
 
   useEffect(() => {
@@ -54,9 +54,24 @@ const useNotification = (currentSteps: number) => {
         );
       }
 
+      const now = new Date();
+      const scheduledTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        DAILY_REMINDER_TIME.hour,
+        DAILY_REMINDER_TIME.minute,
+        0
+      );
+
+      // If the scheduled time passed, schedule for tomorrow
+      if (now > scheduledTime) {
+        scheduledTime.setDate(scheduledTime.getDate() + 1);
+      }
+
       const trigger = {
-        hour: DAILY_REMINDER_TIME.hour,
-        minute: DAILY_REMINDER_TIME.minute,
+        hour: scheduledTime.getHours(),
+        minute: scheduledTime.getMinutes(),
         repeats: true,
       } as unknown as Notifications.DailyTriggerInput;
 
@@ -105,8 +120,8 @@ const useNotification = (currentSteps: number) => {
     }
   };
 
-  // check for midnight to reset the goal notification
-  const setupMidnightResetCheck = () => {
+  // check every hour reset the goal notification
+  const setupHourlyResetCheck = () => {
     const interval = setInterval(() => {
       checkGoalNotificationReset();
     }, 60 * 60 * 1000);

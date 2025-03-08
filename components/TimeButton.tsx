@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -7,7 +7,6 @@ interface TimeButtonProps {
   backgroundColor: string;
   iconColor: string;
   onPress: () => void;
-  disabled?: boolean;
 }
 
 const TimeButton: React.FC<TimeButtonProps> = ({
@@ -15,32 +14,24 @@ const TimeButton: React.FC<TimeButtonProps> = ({
   backgroundColor,
   iconColor,
   onPress,
-  disabled = false,
 }) => {
   const handlePress = () => {
-    if (!disabled) {
       onPress();
-    }
   };
 
   return (
     <Pressable
       style={({ pressed }) =>
-        pressed && !disabled
+        pressed
           ? [styles.button, { backgroundColor }, styles.pressed]
-          : [
-              styles.button,
-              { backgroundColor },
-              disabled ? styles.disabled : null,
-            ]
+          : [styles.button, { backgroundColor }]
       }
       onPress={handlePress}
-      disabled={disabled}
     >
       <Ionicons
         name={iconName}
         size={24}
-        color={disabled ? "gray" : iconColor}
+        color={iconColor}
       />
     </Pressable>
   );
@@ -57,9 +48,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
-  },
-  disabled: {
-    opacity: 0.3, // Make disabled button look inactive
   },
 });
 
